@@ -1,0 +1,35 @@
+image: docker
+services:
+    - docker:dind
+
+stages:
+  - test
+  - deploy
+
+step-develop:
+  stage: test
+  
+  before_script:
+    - export DYNAMIC_ENV_VAR=DEVELOP
+  only:
+    - develop
+    - production
+  tags:
+    - docker-test
+  script:
+    - echo running tests in $DYNAMIC_ENV_VAR
+
+step-deploy-production:
+  stage: deploy
+  only:
+    - production
+  tags:
+    - docker-deploy
+  script:
+    - echo setting up env $DYNAMIC_ENV_VAR
+    - sudo apt-get install -y python-pip
+    - sudo pip install docker-compose
+    - sudo docker-compose up -d --build 
+  environment: production
+  when: manual
+
